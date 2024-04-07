@@ -31,23 +31,24 @@ vae_model = load_model()
 #     return output_image[0].numpy()
 
 def generate_output(input_image):
+    # Resize and normalize the input image
     input_image = np.array(input_image.resize((128, 128))) / 255.0
     input_image = np.expand_dims(input_image, axis=0)
-
-    # Convert input image to float32 if it's not already, as TensorFlow models typically expect float32 inputs
+    
+    # Ensure the input is in the correct dtype, TensorFlow typically expects float32
     input_tensor = tf.convert_to_tensor(input_image, dtype=tf.float32)
-
+    
     # Create a dictionary for input as expected by the serving signature
-    inputs = {'input_name': input_tensor}  # Replace 'input_name' with the actual input name used by your model
+    # 'inputs' is the key that we found needs to be used from the error message and model signature inspection
+    input_dict = {'inputs': input_tensor}
 
-    # Use the serving signature with correct input format
-    output = vae_model.signatures['serving_default'](**inputs)
+    # Use the serving signature with the correct input format
+    output = vae_model.signatures['serving_default'](**input_dict)
 
-    # Assuming 'output_0' is the key for the desired model output
+    # Extracting the output assuming 'output_0' is the key for the desired model output
     output_image = output['output_0']
 
     return output_image[0].numpy()  # Convert to numpy array if needed
-
 
 # Streamlit UI
 st.title('VAE Model Deployment')
