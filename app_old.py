@@ -12,7 +12,7 @@ vae_model = load_model()
 
 def generate_output(input_image):
     # Resize and normalize the input image
-    input_image = np.array(input_image.resize((64, 64))) / 255.0
+    input_image = np.array(input_image.resize((128, 128))) / 255.0
     input_image = np.expand_dims(input_image, axis=0)
     
     # Ensure the input is in the correct dtype, TensorFlow typically expects float32
