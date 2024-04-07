@@ -26,7 +26,7 @@ def generate_output(input_image, model_type):
         output = vae_model.signatures['serving_default'](**input_dict)
         output_image = output['output_0']
     elif model_type == 'CNN':
-        input_dict = {'input_0': input_tensor}
+        input_dict = {'inputs': input_tensor}
         output = cnn_model.signatures['serving_default'](**input_dict)
         output_image = output['output_0']
     else:
@@ -50,3 +50,16 @@ if uploaded_file is not None:
             output_image = generate_output(input_image, model_type)
             st.image(output_image, caption='Generated Output', use_column_width=True)
             st.success('Output generated successfully!')
+
+def print_model_signatures(model):
+    for key, sig in model.signatures.items():
+        print(f"Signature: {key}")
+        print("Inputs:")
+        for input_key, input_val in sig.inputs.items():
+            print(f"  {input_key}: {input_val}")
+        print("Outputs:")
+        for output_key, output_val in sig.outputs.items():
+            print(f"  {output_key}: {output_val}")
+
+# Call this function after loading your models
+print_model_signatures(cnn_model)
