@@ -14,35 +14,28 @@ def load_models():
 vae_model, cnn_model = load_models()
 
 def generate_output(input_image, model_type):
-    # Resize and normalize the input image
-    input_image_vae = np.array(input_image.resize((128, 128))) / 255.0
-    input_image_vae = np.expand_dims(input_image_vae, axis=0)
-    input_image_cnn = np.array(input_image.resize((48, 48))) / 255.0
-    input_image_cnn = np.expand_dims(input_image_cnn, axis=0)  # Adds batch dimension
-
-    
-    # Ensure the input is in the correct dtype, TensorFlow typically expects float32
-    input_tensor_vae = tf.convert_to_tensor(input_image_vae, dtype=tf.float32)
-    input_tensor_cnn = tf.convert_to_tensor(input_image_cnn, dtype=tf.float32)
-    
     if model_type == 'VAE':
-        input_dict = {'inputs': input_tensor_vae}
-        output = vae_model.signatures['serving_default'](**input_dict)
-        output_image = output['output_0']
+        input_image_processed = np.array(input_image.resize((128, 128))) / 255.0
+        input_image_processed = np.expand_dims(input_image_processed, axis=0)
+        input_tensor = tf.convert_to_tensor(input_image_processed, dtype=tf.float32)
+        output = vae_model.signatures['serving_default'](inputs=input_tensor)
+        output_image = output['output_0'][0].numpy()  # Ensure output is a single image array
     elif model_type == 'CNN':
-        input_dict = {'inputs': input_tensor_cnn}
-        output = cnn_model.signatures['serving_default'](**input_dict)
-        output_image = output['output_0']
-    else:
-        raise ValueError("Invalid model type provided. Use 'VAE' or 'CNN'.")
+        input_image_processed = np.array(input_image.resize((48, 48))) / 255.0
+        input_image_processed = np.expand_dims(input_image_processed, axis=0)
+        input_tensor = tf.convert_to_tensor(input_image_processed, dtype=tf.float32)
+        output = cnn_model.signatures['serving_default'](inputs=input_tensor)
+        output_image = output['output_0'][0].numpy()
 
-    return output_image[0].numpy()  # Convert to numpy array if needed
+    # Check if output_image has a channel dimension and adjust if necessary
+    if output_image.ndim == 2:
+        output_image = np.stack((output_image,)*3, axis=-1)  # Convert grayscale to RGB
+    elif output_image.ndim == 4:
+        output_image = output_image[0]  # Select the first image if batch dimension is included
 
-# Streamlit UI
-st.title('Model Deployment: VAE and CNN')
+    return output_image
 
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png"], accept_multiple_files=False)
-
+# Example usage in Streamlit
 if uploaded_file is not None:
     input_image = Image.open(uploaded_file)
     st.image(input_image, caption='Uploaded Image', use_column_width=True)
@@ -52,8 +45,28 @@ if uploaded_file is not None:
     if st.button('Generate Output'):
         with st.spinner('Generating Output...'):
             output_image = generate_output(input_image, model_type)
+            if output_image.shape[-1] == 1:  # Check if the last dimension is 1 (grayscale)
+                output_image = np.squeeze(output_image, axis=-1)  # Remove the last dimension for grayscale
             st.image(output_image, caption='Generated Output', use_column_width=True)
             st.success('Output generated successfully!')
+
+
+# # Streamlit UI
+# st.title('Model Deployment: VAE and CNN')
+
+# uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png"], accept_multiple_files=False)
+
+# if uploaded_file is not None:
+#     input_image = Image.open(uploaded_file)
+#     st.image(input_image, caption='Uploaded Image', use_column_width=True)
+    
+#     model_type = st.radio("Choose a model type:", ('VAE', 'CNN'))
+    
+#     if st.button('Generate Output'):
+#         with st.spinner('Generating Output...'):
+#             output_image = generate_output(input_image, model_type)
+#             st.image(output_image, caption='Generated Output', use_column_width=True)
+#             st.success('Output generated successfully!')
 
 # def print_model_signatures(model):
 #     for key, sig in model.signatures.items():
