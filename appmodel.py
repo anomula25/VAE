@@ -15,18 +15,22 @@ vae_model, cnn_model = load_models()
 
 def generate_output(input_image, model_type):
     # Resize and normalize the input image
-    input_image = np.array(input_image.resize((128, 128))) / 255.0
-    input_image = np.expand_dims(input_image, axis=0)
+    input_image_vae = np.array(input_image.resize((128, 128))) / 255.0
+    input_image_vae = np.expand_dims(input_image_vae, axis=0)
+    input_image_cnn = np.array(input_image.resize((64, 64))) / 255.0
+    input_image_cnn = np.expand_dims(input_image_cnn, axis=0)  # Adds batch dimension
+
     
     # Ensure the input is in the correct dtype, TensorFlow typically expects float32
-    input_tensor = tf.convert_to_tensor(input_image, dtype=tf.float32)
+    input_tensor_vae = tf.convert_to_tensor(input_image_vae, dtype=tf.float32)
+    input_tensor_cnn = tf.convert_to_tensor(input_image_cnn, dtype=tf.float32)
     
     if model_type == 'VAE':
-        input_dict = {'inputs': input_tensor}
+        input_dict = {'inputs': input_tensor_vae}
         output = vae_model.signatures['serving_default'](**input_dict)
         output_image = output['output_0']
     elif model_type == 'CNN':
-        input_dict = {'inputs': input_tensor}
+        input_dict = {'inputs': input_tensor_cnn}
         output = cnn_model.signatures['serving_default'](**input_dict)
         output_image = output['output_0']
     else:
