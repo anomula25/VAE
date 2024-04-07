@@ -21,14 +21,33 @@ vae_model = load_model()
 #     output_image = vae_model(input_image)# Assuming your VAE model directly takes input and generates output
 #     return output_image[0]  # Return the generated output image
 
+# def generate_output(input_image):
+#     input_image = np.array(input_image.resize((128, 128))) / 255.0
+#     input_image = np.expand_dims(input_image, axis=0)
+
+#     # Assuming the model exposes a callable serving signature:
+#     output_image = vae_model.signatures['serving_default'](tf.convert_to_tensor(input_image))['output_0']
+
+#     return output_image[0].numpy()
+
 def generate_output(input_image):
     input_image = np.array(input_image.resize((128, 128))) / 255.0
     input_image = np.expand_dims(input_image, axis=0)
 
-    # Assuming the model exposes a callable serving signature:
-    output_image = vae_model.signatures['serving_default'](tf.convert_to_tensor(input_image))['output_0']
+    # Convert input image to float32 if it's not already, as TensorFlow models typically expect float32 inputs
+    input_tensor = tf.convert_to_tensor(input_image, dtype=tf.float32)
 
-    return output_image[0].numpy()
+    # Create a dictionary for input as expected by the serving signature
+    inputs = {'input_name': input_tensor}  # Replace 'input_name' with the actual input name used by your model
+
+    # Use the serving signature with correct input format
+    output = vae_model.signatures['serving_default'](**inputs)
+
+    # Assuming 'output_0' is the key for the desired model output
+    output_image = output['output_0']
+
+    return output_image[0].numpy()  # Convert to numpy array if needed
+
 
 # Streamlit UI
 st.title('VAE Model Deployment')
