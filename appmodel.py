@@ -55,11 +55,12 @@ def print_model_signatures(model):
     for key, sig in model.signatures.items():
         print(f"Signature: {key}")
         print("Inputs:")
-        for input_key, input_val in sig.inputs.items():
-            print(f"  {input_key}: {input_val}")
+        for input_name, input_tensor in sig.inputs.items():
+            print(f"  {input_name}: {input_tensor.shape}, {input_tensor.dtype}")
         print("Outputs:")
-        for output_key, output_val in sig.outputs.items():
-            print(f"  {output_key}: {output_val}")
+        for output_name, output_tensor in sig.outputs.items():
+            print(f"  {output_name}: {output_tensor.shape}, {output_tensor.dtype}")
 
 # Call this function after loading your models
 print_model_signatures(cnn_model)
+
