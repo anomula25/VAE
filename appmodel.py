@@ -17,7 +17,7 @@ def generate_output(input_image, model_type):
     # Resize and normalize the input image
     input_image_vae = np.array(input_image.resize((128, 128))) / 255.0
     input_image_vae = np.expand_dims(input_image_vae, axis=0)
-    input_image_cnn = np.array(input_image.resize((64, 64))) / 255.0
+    input_image_cnn = np.array(input_image.resize((48, 48))) / 255.0
     input_image_cnn = np.expand_dims(input_image_cnn, axis=0)  # Adds batch dimension
 
     
