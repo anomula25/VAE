@@ -7,8 +7,8 @@ from PIL import Image
 # Function to load the trained models
 def load_models():
     vae_model = tf.saved_model.load('vae_model_saved_model_format')  # Load the VAE model
-    #cnn_model = tf.saved_model.load('cnn_model_saved_model_format')
-    cnn_model = tf.keras.models.load_model('facial_expression_output.h5')# Load the CNN model
+    cnn_model = tf.saved_model.load('cnn_model_saved_model_format')
+    #cnn_model = tf.keras.models.load_model('facial_expression_output.h5')# Load the CNN model
     return vae_model, cnn_model
 
 vae_model, cnn_model = load_models()
