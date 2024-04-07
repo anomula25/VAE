@@ -35,6 +35,8 @@ def generate_output(input_image, model_type):
 
     return output_image
 
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png"], accept_multiple_files=False)
+
 # Example usage in Streamlit
 if uploaded_file is not None:
     input_image = Image.open(uploaded_file)
