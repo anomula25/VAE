@@ -51,15 +51,29 @@ if uploaded_file is not None:
             st.image(output_image, caption='Generated Output', use_column_width=True)
             st.success('Output generated successfully!')
 
+# def print_model_signatures(model):
+#     for key, sig in model.signatures.items():
+#         print(f"Signature: {key}")
+#         print("Inputs:")
+#         for input_name, input_tensor in sig.inputs.items():
+#             print(f"  {input_name}: {input_tensor.shape}, {input_tensor.dtype}")
+#         print("Outputs:")
+#         for output_name, output_tensor in sig.outputs.items():
+#             print(f"  {output_name}: {output_tensor.shape}, {output_tensor.dtype}")
+
 def print_model_signatures(model):
     for key, sig in model.signatures.items():
         print(f"Signature: {key}")
         print("Inputs:")
-        for input_name, input_tensor in sig.inputs.items():
-            print(f"  {input_name}: {input_tensor.shape}, {input_tensor.dtype}")
+        for input_tensor in sig.inputs:
+            print(f"  {input_tensor.name}: {input_tensor.shape}, {input_tensor.dtype}")
         print("Outputs:")
-        for output_name, output_tensor in sig.outputs.items():
-            print(f"  {output_name}: {output_tensor.shape}, {output_tensor.dtype}")
+        for output_tensor in sig.outputs:
+            print(f"  {output_tensor.name}: {output_tensor.shape}, {output_tensor.dtype}")
+
+# Call this function after loading your models
+# For example: print_model_signatures(your_model)
+
 
 # Call this function after loading your models
 print_model_signatures(cnn_model)
